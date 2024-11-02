@@ -26,7 +26,6 @@ This audit repo and its Discord channel are accessible to **certified wardens on
 The 4naly3er report can be found [here](https://github.com/code-423n4/2024-11-ethena-labs/blob/main/4naly3er-report.md).
 
 _Note for C4 wardens: Anything included in this `Automated Findings / Publicly Known Issues` section is considered a publicly known issue and is ineligible for awards._
-## 🐺 C4 team: paste this into the bottom of the sponsor's audit repo `README`, then delete this line
 
 - Lack of storage gap in upgradeable base contract. This issue may introduce storage collisions for inheriting contracts. This issue can be mitigated by introducing custom storage slots in future upgrades should they be necessary.
 

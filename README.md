@@ -41,9 +41,9 @@ _Note for C4 wardens: Anything included in this `Automated Findings / Publicly K
 - **Previous audits:**  three audit reports are available in the public contest repo shared
   - ✅ SCOUTS: If there are multiple report links, please format them in a list.
 - **Documentation:** https://github.com/ethena-labs/ethena-ustb-contest/blob/main/README.md
-- **Website:** 🐺 CA: add a link to the sponsor's website
-- **X/Twitter:** 🐺 CA: add a link to the sponsor's Twitter
-- **Discord:** 🐺 CA: add a link to the sponsor's Discord
+- **Website:** https://ethena.fi/
+- **X/Twitter:** https://twitter.com/ethena_labs
+- **Discord:** https://discord.com/invite/ethena
 
 ---
 

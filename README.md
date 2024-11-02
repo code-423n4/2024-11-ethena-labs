@@ -29,11 +29,64 @@ _Note for C4 wardens: Anything included in this `Automated Findings / Publicly K
 
 - Lack of storage gap in upgradeable base contract. This issue may introduce storage collisions for inheriting contracts. This issue can be mitigated by introducing custom storage slots in future upgrades should they be necessary.
 
-✅ SCOUTS: Please format the response above 👆 so its not a wall of text and its readable.
 
 # Overview
 
-[ ⭐️ SPONSORS: add info here ]
+## UStb token and minting
+
+
+### UStb token features
+
+**Overview**: An upgradeable ERC20 with mint and burn functionality and various transfer states that is controlled by a single admin address.
+
+#### 1. Whitelisting
+
+A set of addresses that are whitelisted for the purpose of transfer restrictions. Only the whitelist manager specified by the admin can add or remove whitelist addresses.
+
+#### 2. Blacklisting
+
+A set of addresses that are blacklisted for the purpose of transfer restrictions. In any case blacklisted addresses cannot send or receive tokens, apart from burning their tokens. Only the blacklist manager specified by the admin can add or remove blacklisted addresses.
+
+#### 3. Token Redistribution
+
+Allows the admin to forcefully move tokens from a blacklisted address to a non-blacklisted address.
+
+#### 4. Transfer States
+
+The admin address can change the state at any time, without a timelock. There are three main transfer states to consider:
+
+- **FULLY_DISABLED**: No holder of this token, whether whitelisted, blacklisted or otherwise can send or receive this token.
+- **WHITELIST_ENABLED**: Only whitelisted addresses can send and receive this token.
+- **FULLY_ENABLED**: Only non-blacklisted addresses can send and receive this token.
+
+### UStb minting features
+
+**Overview**: A contract defining the operations to mint and redeem UStb tokens based on signed orders that is controlled by a single admin. The price present in any mint/redeem orders are determined by an off-chain RFQ system controlled by Ethena, which a benefactor may accept and sign an order for. The minter/redeemer then has last look rights to be able to filter out any malicious orders and proceed with on-chain settlement.
+
+#### 1. Max mint/redeem per block by collateral
+
+Implements the max amount of UStb that can be minted/redeemed in a single block using a certain type of collateral. The limit can be adjusted by the admin on a per collateral basis, regardless whether the collateral is active or not.
+
+#### 2. Global max mint/redeem per block
+
+In addition to mint/redeem limits by collateral, there is a global mint/redeem per block configuration that caps the amount of UStb that can be minted in a single block, regardless of the collateral used to mint UStb. The admin can adjust this configurations, regardless whether the collateral is active or not.
+
+#### 3. Delegate signer
+
+Allows an address to delegate signing to another address. The mechanism to set a delegate signer is a two-step process, first the delegator needs to propose a delegatee, finally the delegatee needs to accept the role. The purpose of this feature is to allow smart contracts to delegate signing to an EOA to sign mint/redeem instructions.
+
+#### 4. Custodians
+
+Custodians are the only addresses that can receive collateral assets from the mint process.
+
+#### 5. Benefactor
+
+An address holding collateral assets (benefactor) for a minting instruction that can receive UStb from the minting process. Benefactors are entities that have undergone KYC with Ethena and have been expressly registered by the admin to be able to participate in mint/redeem operations.
+
+#### 6. Beneficiary
+
+An address holding collateral assets (benefactor) for a minting instruction can assign a different address (beneficiary) to receive UStb.
+
 
 ## Links
 
@@ -46,64 +99,43 @@ _Note for C4 wardens: Anything included in this `Automated Findings / Publicly K
 
 ---
 
+
 # Scope
 
-[ ✅ SCOUTS: add scoping and technical details here ]
+*See [scope.txt](https://github.com/code-423n4/2024-11-ethena-labs/blob/main/scope.txt)*
 
 ### Files in scope
-- ✅ This should be completed using the `metrics.md` file
-- ✅ Last row of the table should be Total: SLOC
-- ✅ SCOUTS: Have the sponsor review and and confirm in text the details in the section titled "Scoping Q amp; A"
 
-*For sponsors that don't use the scoping tool: list all files in scope in the table below (along with hyperlinks) -- and feel free to add notes to emphasize areas of focus.*
 
-| Contract | SLOC | Purpose | Libraries used |  
-| ----------- | ----------- | ----------- | ----------- |
-| [contracts/folder/sample.sol](https://github.com/code-423n4/repo-name/blob/contracts/folder/sample.sol) | 123 | This contract does XYZ | [`@openzeppelin/*`](https://openzeppelin.com/contracts/) |
+| File   | Logic Contracts | Interfaces | nSLOC | Purpose | Libraries used |
+| ------ | --------------- | ---------- | ----- | -----   | ------------ |
+| /contracts/SingleAdminAccessControl.sol | 1| **** | 42 | |@openzeppelin/contracts/access/AccessControl.sol<br>@openzeppelin/contracts/interfaces/IERC5313.sol|
+| /contracts/SingleAdminAccessControlUpgradeable.sol | 1| **** | 42 | |@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol<br>@openzeppelin/contracts/interfaces/IERC5313.sol|
+| /contracts/ustb/UStb.sol | 1| **** | 127 | |@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol<br>@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol<br>@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol<br>@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol|
+| /contracts/ustb/UStbMinting.sol | 1| **** | 454 | |@openzeppelin/contracts/security/ReentrancyGuard.sol<br>@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol<br>@openzeppelin/contracts/utils/cryptography/ECDSA.sol<br>@openzeppelin/contracts/utils/structs/EnumerableSet.sol<br>@openzeppelin/contracts/interfaces/IERC1271.sol|
+| **Totals** | **4** | **** | **665** | | |
 
 ### Files out of scope
-✅ SCOUTS: List files/directories out of scope
+
+*See [out_of_scope.txt](https://github.com/code-423n4/2024-11-ethena-labs/blob/main/out_of_scope.txt)*
+
 
 ## Scoping Q &amp; A
 
 ### General questions
-### Are there any ERC20's in scope?: Yes
-
-✅ SCOUTS: If the answer above 👆 is "Yes", please add the tokens below 👇 to the table. Otherwise, update the column with "None".
-
-Specific tokens (please specify)
-BUIDL, USDC - generally stable coins
-
-### Are there any ERC777's in scope?: No
-
-✅ SCOUTS: If the answer above 👆 is "Yes", please add the tokens below 👇 to the table. Otherwise, update the column with "None".
 
 
-
-### Are there any ERC721's in scope?: No
-
-✅ SCOUTS: If the answer above 👆 is "Yes", please add the tokens below 👇 to the table. Otherwise, update the column with "None".
-
-
-
-### Are there any ERC1155's in scope?: No
-
-✅ SCOUTS: If the answer above 👆 is "Yes", please add the tokens below 👇 to the table. Otherwise, update the column with "None".
-
-
-
-✅ SCOUTS: Once done populating the table below, please remove all the Q/A data above.
 
 | Question                                | Answer                       |
 | --------------------------------------- | ---------------------------- |
-| ERC20 used by the protocol              |       🖊️             |
-| Test coverage                           | ✅ SCOUTS: Please populate this after running the test coverage command                          |
-| ERC721 used  by the protocol            |            🖊️              |
-| ERC777 used by the protocol             |           🖊️                |
-| ERC1155 used by the protocol            |              🖊️            |
+| ERC20 used by the protocol              |      ✅  BUIDL, USDC - generally stable coins             |
+| Test coverage                           | 87.56% (373/426 statements)                          |
+| ERC721 used  by the protocol            |            None              |
+| ERC777 used by the protocol             |           None                |
+| ERC1155 used by the protocol            |              None            |
 | Chains the protocol will be deployed on | Ethereum |
 
-### ERC20 token behaviors in scope
+### ERC20 token behaviors in scope ✅
 
 | Question                                                                                                                                                   | Answer |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
@@ -138,13 +170,6 @@ BUIDL, USDC - generally stable coins
 ### EIP compliance checklist
 - EIP 1271 for signing schema related to smart contracts signing an order
 
-✅ SCOUTS: Please format the response above 👆 using the template below👇
-
-| Question                                | Answer                       |
-| --------------------------------------- | ---------------------------- |
-| src/Token.sol                           | ERC20, ERC721                |
-| src/NFT.sol                             | ERC721                       |
-
 
 # Additional context
 
@@ -159,109 +184,49 @@ The main invariants are already detailed in the readme.
 - any user circumventing token transfers in a FULLY_DISABLED transfer state in UStb token contract.
 - collateral being accessed in an unexpected way in the UStb minting contract
 
-✅ SCOUTS: Please format the response above 👆 so its not a wall of text and its readable.
 
 ## All trusted roles in the protocol
 
-- DEFAULT_ADMIN - can assign roles to themselves or others and has the ability to perform any action
-- MINTER - has the ability to call the mint function in UStb minting contract
-- REDEEMER - has the ability to call the redeem function in UStb minting contract
-- GATEKEEPER - has the ability to disable minting and redeeming
-- BLACKLIST_MANAGER - has the ability to blacklist addresses
-- WHITELIST_MANAGER - has the ability to whitelist addresses
 
-✅ SCOUTS: Please format the response above 👆 using the template below👇
 
-| Role                                | Description                       |
-| --------------------------------------- | ---------------------------- |
-| Owner                          | Has superpowers                |
-| Administrator                             | Can change fees                       |
+| Role              | Description                                                                        |
+|-------------------|------------------------------------------------------------------------------------|
+| DEFAULT_ADMIN     | can assign roles to themselves or others and has the ability to perform any action |
+| MINTER            | has the ability to call the mint function in UStb minting contract                 |
+| REDEEMER          | has the ability to call the redeem function in UStb minting contract               |
+| GATEKEEPER        | has the ability to disable minting and redeeming                                   |
+| BLACKLIST_MANAGER | has the ability to blacklist addresses                                             |
+| WHITELIST_MANAGER | has the ability to whitelist addresses                                             |
+
 
 ## Describe any novel or unique curve logic or mathematical models implemented in the contracts:
 
 N/A
 
-✅ SCOUTS: Please format the response above 👆 so its not a wall of text and its readable.
 
 ## Running tests
 
-forge build
-forge test --gas-report
-
-✅ SCOUTS: Please format the response above 👆 using the template below👇
-
 ```bash
-git clone https://github.com/code-423n4/2023-08-arbitrum
-git submodule update --init --recursive
-cd governance
 foundryup
-make install
-make build
-make sc-election-test
+
+git clone https://github.com/code-423n4/2024-11-ethena-labs.git
+cd 2024-11-ethena-labs
+forge test
 ```
 To run code coverage
 ```bash
-make coverage
-```
-To run gas benchmarks
-```bash
-make gas
+forge coverage
 ```
 
-✅ SCOUTS: Add a screenshot of your terminal showing the gas report
-✅ SCOUTS: Add a screenshot of your terminal showing the test coverage
 
+| File                                              | % Lines          | % Statements     | % Branches      | % Funcs         |
+|---------------------------------------------------|------------------|------------------|-----------------|-----------------|
+| contracts/SingleAdminAccessControl.sol            | 100.00% (16/16)  | 94.74% (18/19)   | 75.00% (3/4)    | 100.00% (8/8)   |
+| contracts/SingleAdminAccessControlUpgradeable.sol | 56.25% (9/16)    | 47.37% (9/19)    | 25.00% (1/4)    | 50.00% (4/8)    |
+| contracts/ustb/UStb.sol                           | 87.10% (54/62)   | 93.91% (108/115) | 53.33% (16/30)  | 85.71% (12/14)  |
+| contracts/ustb/UStbMinting.sol                    | 91.09% (184/202) | 87.18% (238/273) | 63.49% (40/63)  | 81.25% (39/48)  |
+| Total                                       | 88.85% (263/296) | 87.56% (373/426) | 59.41% (60/101)  | 80.77% (63/78) |
 
-
-
-
-
-# Scope
-
-*See [scope.txt](https://github.com/code-423n4/2024-11-ethena-labs/blob/main/scope.txt)*
-
-### Files in scope
-
-
-| File   | Logic Contracts | Interfaces | nSLOC | Purpose | Libraries used |
-| ------ | --------------- | ---------- | ----- | -----   | ------------ |
-| /contracts/SingleAdminAccessControl.sol | 1| **** | 42 | |@openzeppelin/contracts/access/AccessControl.sol<br>@openzeppelin/contracts/interfaces/IERC5313.sol|
-| /contracts/SingleAdminAccessControlUpgradeable.sol | 1| **** | 42 | |@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol<br>@openzeppelin/contracts/interfaces/IERC5313.sol|
-| /contracts/ustb/UStb.sol | 1| **** | 127 | |@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol<br>@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol<br>@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol<br>@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol|
-| /contracts/ustb/UStbMinting.sol | 1| **** | 454 | |@openzeppelin/contracts/security/ReentrancyGuard.sol<br>@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol<br>@openzeppelin/contracts/utils/cryptography/ECDSA.sol<br>@openzeppelin/contracts/utils/structs/EnumerableSet.sol<br>@openzeppelin/contracts/interfaces/IERC1271.sol|
-| **Totals** | **4** | **** | **665** | | |
-
-### Files out of scope
-
-*See [out_of_scope.txt](https://github.com/code-423n4/2024-11-ethena-labs/blob/main/out_of_scope.txt)*
-
-| File         |
-| ------------ |
-| ./contracts/interfaces/ISingleAdminAccessControl.sol |
-| ./contracts/lib/Upgrades.sol |
-| ./contracts/mock/MockMultisigWallet.sol |
-| ./contracts/mock/MockToken.sol |
-| ./contracts/mock/MockUSDT.sol |
-| ./contracts/ustb/IUStb.sol |
-| ./contracts/ustb/IUStbDefinitions.sol |
-| ./contracts/ustb/IUStbMinting.sol |
-| ./contracts/ustb/IUStbMintingEvents.sol |
-| ./test/foundry/UStb.admin.t.sol |
-| ./test/foundry/UStb.transfers.t.sol |
-| ./test/foundry/UStbBaseSetup.sol |
-| ./test/foundry/UStbMinting.utils.sol |
-| ./test/foundry/UStbMintingBaseSetup.sol |
-| ./test/foundry/test/UStbMinting.ACL.t.sol |
-| ./test/foundry/test/UStbMinting.Delegate.t.sol |
-| ./test/foundry/test/UStbMinting.SmartContractSigning.t.sol |
-| ./test/foundry/test/UStbMinting.StableRatios.t.sol |
-| ./test/foundry/test/UStbMinting.Whitelist.t.sol |
-| ./test/foundry/test/UStbMinting.blockLimits.t.sol |
-| ./test/foundry/test/UStbMinting.core.t.sol |
-| ./test/utils/SigUtils.sol |
-| ./test/utils/Test.sol |
-| ./test/utils/Utils.sol |
-| Totals: 24 |
 
 ## Miscellaneous
 Employees of Ethena Labs and employees' family members are ineligible to participate in this audit.

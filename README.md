@@ -174,10 +174,7 @@ An address holding collateral assets (benefactor) for a minting instruction can 
 # Additional context
 
 ## Main invariants
-
-The main invariants are already detailed in the readme.
-
-✅ SCOUTS: Please format the response above 👆 so its not a wall of text and its readable.
+N/A
 
 ## Attack ideas (where to focus for bugs)
 - a blacklisted user circumventing token transfer restrictions in any of the transfer states defined in UStb token contract.

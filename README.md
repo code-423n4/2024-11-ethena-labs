@@ -29,11 +29,16 @@ _Note for C4 wardens: Anything included in this `Automated Findings / Publicly K
 
 - Lack of storage gap in upgradeable base contract. This issue may introduce storage collisions for inheriting contracts. This issue can be mitigated by introducing custom storage slots in future upgrades should they be necessary.
 
+- USDC can blacklist an arbitrary address which could could interfer with the minting/redeeming process.
+
+- BUIDL can seize funds from an arbitrary address.
+
+- Centralization risk in relation to the various actors in the contracts.
+
 
 # Overview
 
 ## UStb token and minting
-
 
 ### UStb token features
 
@@ -45,7 +50,7 @@ A set of addresses that are whitelisted for the purpose of transfer restrictions
 
 #### 2. Blacklisting
 
-A set of addresses that are blacklisted for the purpose of transfer restrictions. In any case blacklisted addresses cannot send or receive tokens, apart from burning their tokens. Only the blacklist manager specified by the admin can add or remove blacklisted addresses.
+A set of addresses that are blacklisted for the purpose of transfer restrictions. In any case blacklisted addresses cannot send or receive tokens. Only the blacklist manager specified by the admin can add or remove blacklisted addresses.
 
 #### 3. Token Redistribution
 
@@ -55,9 +60,9 @@ Allows the admin to forcefully move tokens from a blacklisted address to a non-b
 
 The admin address can change the state at any time, without a timelock. There are three main transfer states to consider:
 
-- **FULLY_DISABLED**: No holder of this token, whether whitelisted, blacklisted or otherwise can send or receive this token.
-- **WHITELIST_ENABLED**: Only whitelisted addresses can send and receive this token.
-- **FULLY_ENABLED**: Only non-blacklisted addresses can send and receive this token.
+- `FULLY_DISABLED`: No holder of this token, whether whitelisted, blacklisted or otherwise can send or receive this token.
+- `WHITELIST_ENABLED`: Only whitelisted addresses can send and receive this token.
+- `FULLY_ENABLED`: Only non-blacklisted addresses can send and receive this token.
 
 ### UStb minting features
 
@@ -87,12 +92,17 @@ An address holding collateral assets (benefactor) for a minting instruction that
 
 An address holding collateral assets (benefactor) for a minting instruction can assign a different address (beneficiary) to receive UStb.
 
+#### 6. TokenType
+
+A collateral can be assigned `STABLE` or `ASSET` token type. Depending on the token type `verifyStablesLimit` will be called during minting/redeeming operations which provide restrictions to price discrepencies in the order.
 
 ## Links
 
 - **Previous audits:**  three audit reports are available in the public contest repo shared
-  - ✅ SCOUTS: If there are multiple report links, please format them in a list.
-- **Documentation:** https://github.com/ethena-labs/ethena-ustb-contest/blob/main/README.md
+  - [Pashov Audit Group](audits/Ethena-security-review-October.pdf)
+  - [Quanstamp](audits/Ethena_final_report_Quantstamp.pdf)
+  - [Cyfrin](audits/2024-10-31-ethena-ustb-v1.0.pdf)
+- **Documentation:** Found in the [Overview](#overview) scetion above
 - **Website:** https://ethena.fi/
 - **X/Twitter:** https://twitter.com/ethena_labs
 - **Discord:** https://discord.com/invite/ethena
@@ -128,7 +138,7 @@ An address holding collateral assets (benefactor) for a minting instruction can 
 
 | Question                                | Answer                       |
 | --------------------------------------- | ---------------------------- |
-| ERC20 used by the protocol              |      ✅  BUIDL, USDC - generally stable coins             |
+| ERC20 used by the protocol              |      BUIDL, USDC             |
 | Test coverage                           | 87.56% (373/426 statements)                          |
 | ERC721 used  by the protocol            |            None              |
 | ERC777 used by the protocol             |           None                |
@@ -179,7 +189,7 @@ N/A
 ## Attack ideas (where to focus for bugs)
 - a blacklisted user circumventing token transfer restrictions in any of the transfer states defined in UStb token contract.
 - any user circumventing token transfers in a FULLY_DISABLED transfer state in UStb token contract.
-- collateral being accessed in an unexpected way in the UStb minting contract
+- collateral being accessed in an unexpected way from the UStb minting contract
 
 
 ## All trusted roles in the protocol

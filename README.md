@@ -35,6 +35,7 @@ _Note for C4 wardens: Anything included in this `Automated Findings / Publicly K
 
 - Centralization risk in relation to the various actors in the contracts.
 
+- Unsafe cast from uint128 to uint64 can cause collisions for the nonce in `verifyNonce` function
 
 # Overview
 
@@ -162,7 +163,11 @@ A collateral can be assigned `STABLE` or `ASSET` token type. Depending on the to
 # Additional context
 
 ## Main invariants
-N/A
+- Blacklisted users cannot send/receive/mint/burn UStb tokens in any case.
+- Only whitelisted user can send/receive/burn UStb tokens in a `WHITELIST_ENABLED` transfer state.
+- Only non-blacklisted addresses can send/receive/burn UStb tokens in a `FULLY_ENABLED` transfer state.
+- No adresses can send/receive tokens in a `FULLY_DISABLED` transfer state.
+- Only the `MINTER` can mint UStb in any case.
 
 ## Attack ideas (where to focus for bugs)
 - a blacklisted user circumventing token transfer restrictions in any of the transfer states defined in UStb token contract.
@@ -182,6 +187,7 @@ N/A
 | GATEKEEPER        | has the ability to disable minting and redeeming                                   |
 | BLACKLIST_MANAGER | has the ability to blacklist addresses                                             |
 | WHITELIST_MANAGER | has the ability to whitelist addresses                                             |
+| COLLATERAL_MANAGER| has the ability to withdraw collateral to custodians                               |
 
 
 ## Describe any novel or unique curve logic or mathematical models implemented in the contracts:

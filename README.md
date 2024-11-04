@@ -8,7 +8,7 @@
 - Starts November 4, 2024 20:00 UTC
 - Ends November 11, 2024 20:00 UTC
 
-ℹ️ If no valid HMs are found, the QA awards will increase to $7,700 in USDC.
+ℹ️ If no valid HMs are found, the QA awards will increase to &#36;7,700 in USDC.
 
 *Note: This competition will be followed by a private Zenith mitigation review.*
 

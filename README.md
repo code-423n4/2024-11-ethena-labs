@@ -1,4 +1,4 @@
-# Ethena Labs audit details
+# Ethena Labs Invitational audit details
 - Total Prize Pool: $20,000 in USDC
   - HM awards: $15,800 in USDC*
   - QA awards: $700 in USDC*
